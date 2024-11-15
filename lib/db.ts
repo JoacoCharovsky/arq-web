@@ -1,5 +1,5 @@
 // This approach is taken from https://github.com/vercel/next.js/tree/canary/examples/with-mongodb
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { Db, MongoClient, ServerApiVersion } from "mongodb";
 
 if (!process.env.MONGODB_URI) {
   throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
@@ -15,6 +15,16 @@ const options = {
 };
 
 let client: MongoClient;
+let cachedDb: Db | null;
+
+export const connectToDatabase = async (): Promise<Db> => {
+  if (cachedDb) {
+    return cachedDb;
+  }
+  const db = await client.connect();
+  cachedDb = db.db();
+  return cachedDb;
+};
 
 if (process.env.NODE_ENV === "development") {
   // In development mode, use a global variable so that the value
