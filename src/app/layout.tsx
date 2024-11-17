@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased flex flex-col min-h-screen`}>
+      <body className={`antialiased flex flex-col min-h-screen pb-8`}>
         <SessionProvider>{children}</SessionProvider>
       </body>
     </html>

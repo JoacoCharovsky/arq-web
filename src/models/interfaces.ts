@@ -1,20 +1,15 @@
 export interface Post {
+  id: string;
   author: User;
   title: string;
   createdAt: string;
-}
-
-export interface DetailedPost extends Post {
   content: string;
-  comments: Comment[];
-}
-
-export interface PreviewPost extends Post {
   commentsCount: number;
 }
 
 export interface Comment {
   id: string;
+  postId: string;
   author: User;
   createdAt: string;
   content: string;
