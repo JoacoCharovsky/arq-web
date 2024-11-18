@@ -1,5 +1,5 @@
 export interface Post {
-  id: string;
+  _id: string;
   author: User;
   title: string;
   createdAt: string;
@@ -8,7 +8,7 @@ export interface Post {
 }
 
 export interface Comment {
-  id: string;
+  _id: string;
   postId: string;
   author: User;
   createdAt: string;
@@ -16,7 +16,7 @@ export interface Comment {
 }
 
 export interface User {
-  id: string;
+  _id: string;
   name: string;
   image?: string;
 }

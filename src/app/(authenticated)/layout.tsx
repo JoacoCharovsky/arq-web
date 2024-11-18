@@ -28,7 +28,10 @@ export default function AuthenticatedLayout({
           </Typography>
           {data?.user && (
             <>
-              <Avatar alt="User Name" src="/static/images/avatar/1.jpg" />
+              <Avatar
+                alt={data.user.name!}
+                src={data.user.image || undefined}
+              />
               <Typography
                 variant="body1"
                 component="div"

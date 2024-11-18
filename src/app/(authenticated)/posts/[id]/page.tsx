@@ -1,9 +1,12 @@
 "use client";
-import React, { useState } from "react";
-import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import UserInput from "@/components/UserInput";
 import SendIcon from "@mui/icons-material/Send";
-import { IconButton, InputAdornment, TextField } from "@mui/material";
+import { IconButton, InputAdornment, Skeleton, TextField } from "@mui/material";
+import axios from "axios";
+import { Post } from "@/models/interfaces";
+import PostsDialog from "@/components/PostsDialog";
 
 const data = {
   id: "8",
@@ -48,7 +51,25 @@ const comments = [
 
 export default function PostPage() {
   const { id } = useParams();
+  const router = useRouter();
+  const [post, setPost] = useState<Post | null>(null);
   const [comment, setComment] = useState("");
+  const [openEdit, setOpenEdit] = useState(false);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await axios.get(`/api/posts/${id}`);
+        console.log(response);
+
+        setPost(response.data);
+      } catch (error) {
+        console.error("Failed to fetch posts", error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setComment(event.target.value);
@@ -65,9 +86,49 @@ export default function PostPage() {
     }
   };
 
+  const deletePost = async () => {
+    try {
+      await axios.delete(`/api/posts/${id}`);
+      router.push(`/posts`);
+    } catch (error) {
+      console.error("Failed to create post", error);
+    }
+  };
+
+  const handleEdit = async (title: string, content: string) => {
+    try {
+      const response = await axios.put(`/api/posts/${id}`, { title, content });
+      setPost(response.data);
+    } catch (error) {
+      console.error("Failed to create post", error);
+    } finally {
+      setOpenEdit(false);
+    }
+  };
+
   return (
     <div className="space-y-10">
-      <UserInput data={data} type="post" />
+      {!post ? (
+        <Skeleton variant="rounded" height={160} />
+      ) : (
+        <div>
+          <UserInput
+            data={post}
+            type="post"
+            onDelete={() => deletePost()}
+            onUpdate={() => setOpenEdit(true)}
+          />
+          <PostsDialog
+            open={openEdit}
+            defaultTitle={post.title}
+            defaultContent={post.content}
+            header={"Editar Post"}
+            handleClose={() => setOpenEdit(false)}
+            handleConfirm={handleEdit}
+          />
+        </div>
+      )}
+
       <div className="space-y-3 px-6">
         <TextField
           value={comment}
@@ -89,9 +150,9 @@ export default function PostPage() {
             },
           }}
         />
-        {comments.map((comment) => (
+        {/* {comments.map((comment) => (
           <UserInput type="comment" data={comment} key={comment.id} />
-        ))}
+        ))} */}
       </div>
     </div>
   );

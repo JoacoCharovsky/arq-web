@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllPosts, createPost } from "@/services/postService";
-import { PreviewPost } from "@/models/interfaces";
+import { auth } from "../../../../auth";
 
 export async function GET() {
-  const posts: PreviewPost[] = await getAllPosts();
+  const posts = await getAllPosts();
   return NextResponse.json(posts);
 }
 
 export async function POST(req: NextRequest) {
-  const { userId, title, content } = await req.json();
-  const posts: PreviewPost[] = await createPost(userId, title, content);
+  const { title, content } = await req.json();
+  const session = await auth();
+  const posts = await createPost(session!.user!.id!, title, content);
   return NextResponse.json(posts);
 }

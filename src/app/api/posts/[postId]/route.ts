@@ -4,33 +4,32 @@ import {
   updatePostById,
   deletePostById,
 } from "@/services/postService";
-import { DetailedPost, PreviewPost } from "@/models/interfaces";
 
 export async function GET(
   _: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
-  const post: DetailedPost = await getPostById(params.postId);
+  const { postId } = await params;
+  const post = await getPostById(postId);
   return NextResponse.json(post);
 }
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   const { title, content } = await req.json();
-  const post: DetailedPost = await updatePostById(
-    params.postId,
-    title,
-    content
-  );
+  const { postId } = await params;
+
+  const post = await updatePostById(postId, title, content);
   return NextResponse.json(post);
 }
 
 export async function DELETE(
   _: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
-  const posts: PreviewPost[] = await deletePostById(params.postId);
-  return NextResponse.json(posts);
+  const { postId } = await params;
+  const post = await deletePostById(postId);
+  return NextResponse.json(post);
 }
