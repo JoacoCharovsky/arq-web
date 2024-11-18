@@ -1,81 +1,10 @@
 import { DetailedPost, PreviewPost } from "@/models/interfaces";
-import { connectToDatabase } from "../../lib/db";
+import { connectToDatabase } from "../lib/db";
 import { ObjectId } from "mongodb";
 
-export async function getAllPosts(): Promise<PreviewPost[]> {
-  const db = await connectToDatabase();
-  const posts = await db
-    .collection("posts")
-    .aggregate([
-      {
-        $lookup: {
-          from: "users",
-          localField: "authorId",
-          foreignField: "_id",
-          as: "author",
-        },
-      },
-      {
-        $unwind: "$author",
-      },
-      {
-        $project: {
-          id: "$_id",
-          author: {
-            id: "$author._id",
-            name: "$author.name",
-            image: "$author.image",
-          },
-          title: 1,
-          createdAt: 1,
-          commentsCount: { $size: "$comments" },
-        },
-      },
-    ])
-    .toArray();
-  return posts;
-}
+export async function getAllPosts(): Promise<PreviewPost[]> {}
 
-export async function getPostById(postId: string): Promise<DetailedPost> {
-  const db = await connectToDatabase();
-  const post = await db
-    .collection("posts")
-    .aggregate([
-      {
-        $match: { _id: new ObjectId(postId) },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "authorId",
-          foreignField: "_id",
-          as: "author",
-        },
-      },
-      {
-        $unwind: "$author",
-      },
-      {
-        $project: {
-          id: "$_id",
-          author: {
-            id: "$author._id",
-            name: "$author.name",
-            image: "$author.image",
-          },
-          title: 1,
-          createdAt: 1,
-          content: 1,
-          comments: 1,
-        },
-      },
-    ])
-    .toArray();
-  if (!post.length) {
-    throw new Error("Post not found");
-  }
-  return post[0];
-}
+export async function getPostById(postId: string): Promise<DetailedPost> {}
 
 export async function createPost(
   userId: string,
