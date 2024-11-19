@@ -4,23 +4,24 @@ import {
   createComment,
   deleteCommentById,
 } from "@/services/commentService";
-import { auth } from "../../../../auth";
 import { z, ZodError } from "zod";
+import { authService } from "@/services/authService";
 
 const commentBodySchema = z.object({
-  postId: z.string(),
   content: z.string(),
 });
 
 const deleteBodySchema = z.object({
   commentId: z.string(),
-  postId: z.string(),
 });
 
-export async function GET(req: NextRequest) {
+export async function GET(
+  _: NextRequest,
+  { params }: { params: Promise<{ postId: string }> }
+) {
   try {
-    await auth();
-    const { postId } = await req.json();
+    await authService();
+    const { postId } = await params;
     const comments = await getAllComments(postId);
     return NextResponse.json(comments);
   } catch (error) {
@@ -31,13 +32,17 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ postId: string }> }
+) {
   try {
     const body = await req.json();
     commentBodySchema.parse(body);
-    const session = await auth();
+    const session = await authService();
+    const { postId } = await params;
     const comment = await createComment(
-      body.postId,
+      postId,
       session!.user!.id!,
       body.content
     );
@@ -56,12 +61,16 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ postId: string }> }
+) {
   try {
-    await auth();
+    await authService();
     const body = await req.json();
     deleteBodySchema.parse(body);
-    const comment = await deleteCommentById(body.commentId, body.postId);
+    const { postId } = await params;
+    const comment = await deleteCommentById(body.commentId, postId);
     return NextResponse.json(comment);
   } catch (error) {
     if (error instanceof ZodError) {

@@ -24,9 +24,7 @@ export default function PostPage() {
         const postResponse = await axios.get(`/api/posts/${id}`);
         setPost(postResponse.data);
 
-        const commentsResponse = await axios.get(`/api/comments`, {
-          params: { postId: id },
-        });
+        const commentsResponse = await axios.get(`/api/posts/${id}/comments`);
         setComments(commentsResponse.data);
       } catch (error) {
         console.error("Failed to fetch post or comments", error);
@@ -42,8 +40,7 @@ export default function PostPage() {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post(`/api/comments`, {
-        postId: id,
+      const response = await axios.post(`/api/posts/${id}/comments`, {
         content: comment,
       });
       setComments((prev) => [...prev, response.data]);
@@ -81,8 +78,8 @@ export default function PostPage() {
 
   const deleteComment = async (commentId: string) => {
     try {
-      await axios.delete(`/api/comments`, {
-        data: { commentId, postId: id },
+      await axios.delete(`/api/posts/${id}/comments`, {
+        data: { commentId },
       });
       setComments((prev) =>
         prev.filter((comment) => comment._id !== commentId)
