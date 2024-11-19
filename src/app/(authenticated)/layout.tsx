@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import {
   AppBar,
   Toolbar,
@@ -11,13 +11,21 @@ import {
 } from "@mui/material";
 import { signOut, useSession } from "next-auth/react";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { useRouter } from "next/navigation";
 
 export default function AuthenticatedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { data } = useSession();
+  const { data, status } = useSession();
+  const router = useRouter();
+
+  useLayoutEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth");
+    }
+  }, [status, router]);
 
   return (
     <div>
@@ -39,7 +47,10 @@ export default function AuthenticatedLayout({
               >
                 {data?.user?.name}
               </Typography>
-              <IconButton onClick={() => signOut()} color="inherit">
+              <IconButton
+                onClick={() => signOut({ redirectTo: "/auth" })}
+                color="inherit"
+              >
                 <LogoutIcon />
               </IconButton>
             </>

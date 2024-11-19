@@ -1,4 +1,4 @@
-import { PostModel } from "@/models/schemas";
+import { PostModel, CommentModel } from "@/models/schemas"; // Updated import
 import { dbConnect } from "@/lib/db";
 
 export async function getAllPosts() {
@@ -84,6 +84,7 @@ export async function deletePostById(postId: string) {
     if (!deletedPost) {
       throw new Error("Post not found");
     }
+    await CommentModel.deleteMany({ postId }).exec(); // Delete associated comments
     return deletedPost;
   } catch (error) {
     console.error(`Error deleting post with id ${postId}:`, error);
