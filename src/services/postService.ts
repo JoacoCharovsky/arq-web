@@ -1,4 +1,4 @@
-import { PostModel, UserModel } from "@/models/schemas";
+import { PostModel } from "@/models/schemas";
 import { dbConnect } from "@/lib/db";
 
 export async function getAllPosts() {

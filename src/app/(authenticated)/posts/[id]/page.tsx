@@ -5,79 +5,52 @@ import UserInput from "@/components/UserInput";
 import SendIcon from "@mui/icons-material/Send";
 import { IconButton, InputAdornment, Skeleton, TextField } from "@mui/material";
 import axios from "axios";
-import { Post } from "@/models/interfaces";
+import { Post, Comment } from "@/models/interfaces";
 import PostsDialog from "@/components/PostsDialog";
-
-const data = {
-  id: "8",
-  author: { id: "8", name: "Frank Green", image: "avatar8.png" },
-  title: "Eighth Post",
-  createdAt: "2023-10-08T04:00:00Z",
-  content: "This is the content of the eighth post.",
-  commentsCount: 9,
-};
-
-const comments = [
-  {
-    id: "8",
-    postId: "7",
-    author: { id: "8", name: "Frank Green", image: "image8.png" },
-    content: "Nice post!",
-    createdAt: "2023-10-07T06:00:00Z",
-  },
-  {
-    id: "2",
-    postId: "7",
-    author: { id: "8", name: "Frank Green", image: "image8.png" },
-    content: "Nice post!",
-    createdAt: "2023-10-07T06:00:00Z",
-  },
-  {
-    id: "4",
-    postId: "7",
-    author: { id: "8", name: "Frank Green", image: "image8.png" },
-    content: "Nice post!",
-    createdAt: "2023-10-07T06:00:00Z",
-  },
-  {
-    id: "5",
-    postId: "7",
-    author: { id: "8", name: "Frank Green", image: "image8.png" },
-    content:
-      "Nice postñlsdkfñ laskdlñf kasdlñf klsañdfk lañsdkf lñasdkf lñasdkf lñaskdf lñasdf asdf! Nice postñlsdkfñ laskdlñf kasdlñf klsañdfk lañsdkf lñasdkf lñasdkf lñaskdf lñasdf asdfNice postñlsdkfñ laskdlñf kasdlñf klsañdfk lañsdkf lñasdkf lñasdkf lñaskdf lñasdf asdfNice postñlsdkfñ laskdlñf kasdlñf klsañdfk lañsdkf lñasdkf lñasdkf lñaskdf lñasdf asdfNice postñlsdkfñ laskdlñf kasdlñf klsañdfk lañsdkf lñasdkf lñasdkf lñaskdf lñasdf asdfNice postñlsdkfñ laskdlñf kasdlñf klsañdfk lañsdkf lñasdkf lñasdkf lñaskdf lñasdf asdfNice postñlsdkfñ laskdlñf kasdlñf klsañdfk lañsdkf lñasdkf lñasdkf lñaskdf lñasdf asdf",
-    createdAt: "2023-10-07T06:00:00Z",
-  },
-];
+import { useSession } from "next-auth/react";
 
 export default function PostPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { data } = useSession();
   const [post, setPost] = useState<Post | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [comment, setComment] = useState("");
   const [openEdit, setOpenEdit] = useState(false);
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchPostAndComments = async () => {
       try {
-        const response = await axios.get(`/api/posts/${id}`);
-        console.log(response);
+        const postResponse = await axios.get(`/api/posts/${id}`);
+        setPost(postResponse.data);
 
-        setPost(response.data);
+        const commentsResponse = await axios.get(`/api/comments`, {
+          params: { postId: id },
+        });
+        setComments(commentsResponse.data);
       } catch (error) {
-        console.error("Failed to fetch posts", error);
+        console.error("Failed to fetch post or comments", error);
       }
     };
 
-    fetchPosts();
-  }, []);
+    fetchPostAndComments();
+  }, [id]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setComment(event.target.value);
   };
 
-  const handleSubmit = () => {
-    console.log(comment);
-    setComment("");
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.post(`/api/comments`, {
+        postId: id,
+        content: comment,
+      });
+      setComments((prev) => [...prev, response.data]);
+      setComment("");
+    } catch (error) {
+      console.error("Failed to create comment", error);
+    }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -91,7 +64,7 @@ export default function PostPage() {
       await axios.delete(`/api/posts/${id}`);
       router.push(`/posts`);
     } catch (error) {
-      console.error("Failed to create post", error);
+      console.error("Failed to delete post", error);
     }
   };
 
@@ -100,9 +73,22 @@ export default function PostPage() {
       const response = await axios.put(`/api/posts/${id}`, { title, content });
       setPost(response.data);
     } catch (error) {
-      console.error("Failed to create post", error);
+      console.error("Failed to update post", error);
     } finally {
       setOpenEdit(false);
+    }
+  };
+
+  const deleteComment = async (commentId: string) => {
+    try {
+      await axios.delete(`/api/comments`, {
+        data: { commentId, postId: id },
+      });
+      setComments((prev) =>
+        prev.filter((comment) => comment._id !== commentId)
+      );
+    } catch (error) {
+      console.error("Failed to delete comment", error);
     }
   };
 
@@ -115,8 +101,16 @@ export default function PostPage() {
           <UserInput
             data={post}
             type="post"
-            onDelete={() => deletePost()}
-            onUpdate={() => setOpenEdit(true)}
+            onDelete={
+              post.author._id === data?.user?.id
+                ? () => deletePost()
+                : undefined
+            }
+            onUpdate={
+              post.author._id === data?.user?.id
+                ? () => setOpenEdit(true)
+                : undefined
+            }
           />
           <PostsDialog
             open={openEdit}
@@ -150,9 +144,18 @@ export default function PostPage() {
             },
           }}
         />
-        {/* {comments.map((comment) => (
-          <UserInput type="comment" data={comment} key={comment.id} />
-        ))} */}
+        {comments.map((comment) => (
+          <UserInput
+            type="comment"
+            data={comment}
+            key={comment._id}
+            onDelete={
+              comment.author._id === data?.user?.id
+                ? () => deleteComment(comment._id)
+                : undefined
+            }
+          />
+        ))}
       </div>
     </div>
   );

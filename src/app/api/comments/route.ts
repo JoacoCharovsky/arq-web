@@ -4,22 +4,23 @@ import {
   createComment,
   deleteCommentById,
 } from "@/services/commentService";
-import { Comment } from "@/models/interfaces";
+import { auth } from "../../../../auth";
 
 export async function GET(req: NextRequest) {
   const { postId } = await req.json();
-  const comments: Comment[] = await getAllComments(postId);
+  const comments = await getAllComments(postId);
   return NextResponse.json(comments);
 }
 
 export async function POST(req: NextRequest) {
-  const { postId, userId, content } = await req.json();
-  const comments: Comment[] = await createComment(postId, userId, content);
-  return NextResponse.json(comments);
+  const { postId, content } = await req.json();
+  const session = await auth();
+  const comment = await createComment(postId, session!.user!.id!, content);
+  return NextResponse.json(comment);
 }
 
 export async function DELETE(req: NextRequest) {
   const { commentId, postId } = await req.json();
-  const comments: Comment[] = await deleteCommentById(commentId, postId);
-  return NextResponse.json(comments);
+  const comment = await deleteCommentById(commentId, postId);
+  return NextResponse.json(comment);
 }
