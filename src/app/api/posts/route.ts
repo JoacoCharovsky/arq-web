@@ -5,6 +5,7 @@ import { z, ZodError } from "zod";
 
 export async function GET() {
   try {
+    throw new Error();
     await authService();
     const posts = await getAllPosts();
     return NextResponse.json(posts);
