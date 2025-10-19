@@ -37,11 +37,13 @@ jobs:
             npm test --silent
           fi
 
-      - name: Run linter (if present)
+      - name: Run linter
         run: |
-          node -e "process.exit(require('./package.json').scripts && require('./package.json').scripts.lint ? 0 : 1)" \
-            && ( if [ -f yarn.lock ]; then yarn lint; else npm run lint; fi ) \
-            || echo "No lint script found - skipping lint"
+          if [ -f yarn.lock ]; then
+            yarn lint
+          else
+            npm run lint
+          fi
 
       - name: Build app (if present)
         run: |
