@@ -27,7 +27,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/lib/db.js"
+    "src/lib/db.js",
+    "jest.config.cjs"
   ],
   "exclude": ["node_modules"]
 }
