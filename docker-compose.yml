@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        AUTH_SECRET: ${AUTH_SECRET}
+        AUTH_GOOGLE_ID: ${AUTH_GOOGLE_ID}
+        AUTH_GOOGLE_SECRET: ${AUTH_GOOGLE_SECRET}
+        AUTH_GITHUB_ID: ${AUTH_GITHUB_ID}
+        AUTH_GITHUB_SECRET: ${AUTH_GITHUB_SECRET}
+        MONGODB_URI: ${MONGODB_URI}
+        NEXTAUTH_URL: ${NEXTAUTH_URL}
+    image: my-foro-app:latest
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+volumes:
+  mongo-data:
