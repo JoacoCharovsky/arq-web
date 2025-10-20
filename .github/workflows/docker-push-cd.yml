@@ -1,4 +1,4 @@
-name: Docker Build & Push
+name: Docker Build, Push & Deploy
 
 on:
   push:
@@ -42,3 +42,15 @@ jobs:
             AUTH_GITHUB_ID=${{ secrets.AUTH_GITHUB_ID }}
             AUTH_GITHUB_SECRET=${{ secrets.AUTH_GITHUB_SECRET }}
             MONGODB_URI=${{ secrets.MONGODB_URI }}
+
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: [build-and-push] # solo se ejecuta si el build fue exitoso
+    steps:
+      - name: Trigger Render Deploy Hook
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          echo "🚀 Triggering Render deploy..."
+          curl -X POST "$RENDER_DEPLOY_HOOK_URL"
