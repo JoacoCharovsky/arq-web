@@ -111,3 +111,41 @@ jobs:
           else
             echo "✅ Render deploy triggered successfully!"
           fi
+
+  # --- UPLOAD SENTRY SOURCEMAPS ---
+  upload-sourcemaps:
+    name: Upload Sentry Source Maps
+    runs-on: ubuntu-latest
+    needs: [test-and-lint, docker-push] # espera que build esté listo
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          if [ -f yarn.lock ]; then
+            yarn install --frozen-lockfile
+          else
+            npm ci
+          fi
+
+      - name: Build app (for source maps)
+        run: |
+          if [ -f yarn.lock ]; then
+            yarn build
+          else
+            npm run build
+          fi
+
+      - name: Upload source maps to Sentry
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          NODE_ENV: production
+        run: npx @sentry/nextjs upload-sourcemaps .next

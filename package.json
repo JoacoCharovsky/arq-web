@@ -16,6 +16,8 @@
     "@fontsource/roboto": "^5.1.0",
     "@mui/icons-material": "^6.1.7",
     "@mui/material": "^6.1.7",
+    "@sentry/nextjs": "^10.20.0",
+    "@sentry/tracing": "^7.120.4",
     "axios": "^1.7.7",
     "mongodb": "^6.10.0",
     "mongoose": "^8.8.1",
