@@ -79,7 +79,7 @@ const UserInput: React.FC<PostPreviewProps> = ({
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
-              color: "red",
+              color: "blue",
             }}
           >
             {data.title}
