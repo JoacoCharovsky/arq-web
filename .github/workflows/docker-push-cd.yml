@@ -148,4 +148,4 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           NODE_ENV: production
-        run: npx --no-install @sentry/nextjs upload-sourcemaps .next
+        run: npx @sentry/cli sourcemaps upload --org=${{ secrets.SENTRY_ORG }} --project=${{ secrets.SENTRY_PROJECT }} .next
