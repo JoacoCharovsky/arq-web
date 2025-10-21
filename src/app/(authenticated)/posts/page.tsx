@@ -1,6 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Grid2 as Grid, Typography, IconButton, Box } from "@mui/material";
+import {
+  Grid2 as Grid,
+  Typography,
+  IconButton,
+  Box,
+  Button,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import UserInput from "@/components/UserInput";
 import { useTheme } from "@mui/material/styles";
@@ -103,6 +109,21 @@ export default function PostsPage() {
           </Grid>
         ))}
       </Grid>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "24px",
+        }}
+      >
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => router.push("/sentry-example-page")}
+        >
+          Sentry Error Page
+        </Button>
+      </Box>
       <PostsDialog
         open={open}
         header={"Agregar Post"}
