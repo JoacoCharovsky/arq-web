@@ -116,7 +116,7 @@ jobs:
   upload-sourcemaps:
     name: Upload Sentry Source Maps
     runs-on: ubuntu-latest
-    needs: [docker-push, test-and-lint-build] # espera que build esté listo
+    # needs: [docker-push, test-and-lint-build] # espera que build esté listo
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -142,10 +142,26 @@ jobs:
             npm run build
           fi
 
+      - name: Create Sentry release
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        run: |
+          npx @sentry/cli releases new ${{ github.sha }}
+          npx @sentry/cli releases set-commits ${{ github.sha }} --auto
+
       - name: Upload source maps to Sentry
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           NODE_ENV: production
-        run: npx @sentry/cli sourcemaps upload --org=${{ secrets.SENTRY_ORG }} --project=${{ secrets.SENTRY_PROJECT }} .next
+        run: npx @sentry/cli sourcemaps upload --release=${{ github.sha }} .next
+
+      - name: Finalize Sentry release
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        run: npx @sentry/cli releases finalize ${{ github.sha }}
