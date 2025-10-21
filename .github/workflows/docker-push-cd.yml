@@ -131,7 +131,7 @@ jobs:
           if [ -f yarn.lock ]; then
             yarn install --frozen-lockfile
           else
-            npm ci
+            npm ci --include=dev
           fi
 
       - name: Build app (for source maps)
@@ -148,4 +148,4 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           NODE_ENV: production
-        run: npx @sentry/nextjs upload-sourcemaps .next
+        run: npx --no-install @sentry/nextjs upload-sourcemaps .next
