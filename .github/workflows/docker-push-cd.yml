@@ -108,7 +108,7 @@ jobs:
           STATUS=$(echo "$RESPONSE" | tail -n1)
           echo "Response body: $BODY"
           echo "HTTP status: $STATUS"
-          if [ "$STATUS" -ne 200 ]; then
+          if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 300 ]; then
             echo "❌ Render deploy failed."
             exit 1
           else
