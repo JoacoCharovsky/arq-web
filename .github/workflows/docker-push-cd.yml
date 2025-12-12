@@ -67,6 +67,7 @@ jobs:
       - name: Read app version
         run: |
           APP_VERSION=$(node -p "require('./package.json').version")
+          echo "Detected version: $APP_VERSION"
           echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
 
       - name: Set up QEMU (multi-arch support)
@@ -109,6 +110,7 @@ jobs:
       - name: Read app version
         run: |
           APP_VERSION=$(node -p "require('./package.json').version")
+          echo "Detected version: $APP_VERSION"
           echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
 
       - name: Trigger Render Deploy Hook
@@ -161,6 +163,7 @@ jobs:
       - name: Read app version
         run: |
           APP_VERSION=$(node -p "require('./package.json').version")
+          echo "Detected version: $APP_VERSION"
           echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
 
       - name: Create Sentry release
