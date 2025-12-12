@@ -1,5 +1,3 @@
-// Debug: log para verificar variable de entorno
-console.log("NEXTAUTH_TRUST_HOST:", process.env.NEXTAUTH_TRUST_HOST);
 import NextAuth, { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 import Github from "next-auth/providers/github";

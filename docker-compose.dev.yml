@@ -4,11 +4,16 @@ services:
   app:
     build:
       context: .
+      dockerfile: Dockerfile
+      target: deps
     volumes:
       - ./:/app:delegated
-      - /app/node_modules
     command: npm run dev
+    env_file:
+      - .env.local
     environment:
       - NODE_ENV=development
+      # En dev dentro de Docker usamos la Mongo del servicio `mongo`
+      - MONGODB_URI=mongodb://mongo:27017/devops
     ports:
       - "3000:3000"
