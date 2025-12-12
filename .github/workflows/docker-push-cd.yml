@@ -116,7 +116,12 @@ jobs:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
           echo "🚀 Triggering Render deploy..."
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$RENDER_DEPLOY_HOOK_URL?version=$APP_VERSION")
+          if echo "$RENDER_DEPLOY_HOOK_URL" | grep -q "?"; then
+            DEPLOY_URL="$RENDER_DEPLOY_HOOK_URL&version=$APP_VERSION"
+          else
+            DEPLOY_URL="$RENDER_DEPLOY_HOOK_URL?version=$APP_VERSION"
+          fi
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$DEPLOY_URL")
           BODY=$(echo "$RESPONSE" | head -n1)
           STATUS=$(echo "$RESPONSE" | tail -n1)
           echo "Response body: $BODY"
