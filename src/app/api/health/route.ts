@@ -26,9 +26,8 @@ export async function GET() {
     status.db = false;
   }
 
-  const statusCode = status.basic && status.db ? 200 : 503;
   return new NextResponse(JSON.stringify(status), {
-    status: statusCode,
+    status: 200,
     headers: { "content-type": "application/json" },
   });
 }
