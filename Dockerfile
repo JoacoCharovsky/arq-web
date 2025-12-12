@@ -43,9 +43,9 @@ COPY --from=builder /app/node_modules ./node_modules
 # Puerto de la app
 EXPOSE 3000
 
-# Healthcheck a /api/health
+# Healthcheck a /api/health usando la variable PORT o 3000 por defecto
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-	CMD wget -qO- http://127.0.0.1:3000/api/health || exit 1
+	CMD wget -qO- http://127.0.0.1:${PORT:-3000}/api/health || exit 1
 
 # Usuario no root por seguridad
 USER appuser
