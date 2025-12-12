@@ -1,10 +1,16 @@
 // app/api/health/route.ts
 import { NextResponse } from "next/server";
 import { getNativeClient } from "@/lib/db"; // cliente mongo (lazy)
+import packageJson from "../../../../package.json"; // Importamos package.json
 
 export async function GET() {
   // chequeo simple: respuesta inmediata
-  const status = { basic: true, db: false, time: new Date().toISOString() };
+  const status = {
+    basic: true,
+    db: false,
+    version: packageJson.version,
+    time: new Date().toISOString(),
+  };
 
   // chequeo opcional de DB (timeout corto)
   try {
